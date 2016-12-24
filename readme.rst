@@ -54,13 +54,15 @@ that includes:
 and makes that available in the nginx server's root directory.
 
 We're using the same command-line syntax to setup the pipeline as the 
-gstreamer-tools gst-launch program uses. 
+gstreamer-tools `gst-launch` program uses. In this syntax you'll see 
+elements (and caps) joined with `!` characters which act as a media 
+pipe between the elements.
 
 .. note::
     You can also setup the pipelines programatically by adding 
     individual elements to a pipeline instance.
 
-In this syntax you'll note that elements start with an element name:
+You'll note that elements start with an element name:
 
 * videotestsrc
 * x264enc
@@ -93,3 +95,14 @@ data-formats being negotiated between the two elements that are
 on either side of them, so that two elements which are very 
 flexible in what they can produce and consume can be restricted
 to produce the format you actually need.
+
+Next Steps
+-----------
+
+You likely don't want to spend the rest of your day looking at 
+test patterns in vlc, so how do you go about doing more interesting
+things?
+
+* gst-inspect will let you see what elements are available, and what 
+  properties those elements have
+* you'll find lots of `gst-launch` samples on the internet
