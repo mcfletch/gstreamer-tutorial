@@ -1,0 +1,19 @@
+version: '2'
+
+volumes:
+    video_data:
+        driver: local
+
+services:
+    nginx:
+        image: nginx:latest
+        ports:
+            - 8080:80
+        volumes:
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - video_data:/var/www
+    gstreamer:
+        build: docker/gstreamer
+        volumes:
+              - ./python:/var/python
+              - video_data:/var/www
