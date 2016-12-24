@@ -42,13 +42,20 @@ SAMPLE_PIPELINE = [
     # Note that *this* element uses kbps for bitrate, some use bps
     'x264enc', 'bitrate=256', '!' 
     # package into an MPEG TS container format
-    'mpegtsmux', '!',
+    'mpegtsmux', 'name=muxer', '!',
     # dump to an HLS playlist/video-file...
     'hlssink',
         'location=/var/www/segment-%05d.ts',
         'playlist-location=/var/www/index.m3u8',
-        'max-files=10',
-        'target-duration=10',
+        'max-files=20',
+        'target-duration=2',
+    # setup a parallel pipeline for audio...
+    'audiotestsrc', '!',
+    # parameters are high-quality monoaural audio
+    'audio/x-raw,rate=48000,channels=1', '!',
+    # encoded as AAC for compatibility with HLS
+    'avenc_aac', 'bitrate=32000', '!',
+    'muxer.',
 ]
         
 def main():
