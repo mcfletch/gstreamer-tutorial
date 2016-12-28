@@ -14,6 +14,8 @@ services:
             - video_data:/var/www
     gstreamer:
         build: docker/gstreamer
+        devices:
+              - /dev/video0:/dev/video0
         volumes:
               - ./python:/var/python
               - video_data:/var/www

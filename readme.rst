@@ -48,8 +48,9 @@ The pipeline we're setting up is a trivial HTTP Live Streaming stream. It doesn'
 do multiple encodes or anything fun like that. It just creates a single playlist
 that includes:
 
-* h264 video
-* aac audio
+* h264 video encoding
+* aac audio encoding
+* mpeg TS muxing and HLS playlist creation
 
 and makes that available in the nginx server's root directory.
 
