@@ -12,7 +12,6 @@ CAMERA_VIDEO_FRAGMENT = [
     'v4l2src', '!',
     'videorate','!',
     'videoscale','!',
-        
 ]
 
 TEST_VIDEO_FRAGMENT = [
@@ -61,6 +60,10 @@ MUXING_FRAGMENT = [
         # a concern for multicast video setups...
         '!',
     # dump to an HLS playlist/video-file...
+    'tee',
+        'name=output_tee',
+        '!',
+    'queue','!',
     'hlssink',
         'location=/var/www/segment-%05d.ts',
         'playlist-location=/var/www/index.m3u8',
@@ -81,6 +84,10 @@ CAMERA_PIPELINE = (
     TEST_AUDIO_FRAGMENT + 
     MUXING_FRAGMENT
 )
+
+    
+    
+
 
 def get_options():
     import argparse
@@ -104,6 +111,33 @@ def main():
         command = CAMERA_PIPELINE
     pipe = pipeline.Pipe( 'sample', command )
     pipe.run()
+    def capture_output( ):
+        """Capture output to a file for a few seconds to demonstrate adding/removing pipeline elements"""
+        filesink_bin = Gst.parse_bin_from_description(' '.join([
+            'queue', 'name=capture-queue', '!',
+            'filesink','location=/var/www/capture.ts'
+        ]),True)
+        queue = filesink_bin.pads[0] # ick!
+        filesink_bin.set_state(Gst.State.PAUSED )
+        source = pipe.components.output_tee
+        pad = source.get_request_pad( 'src_2' )
+        def stop_capture():
+            def on_blocked( *args, **named ):
+                pad.remove_probe(probe)
+                pad.unlink( queue )
+                pipe.pipeline.remove( filesink_bin )
+                queue.send_event( Gst.Event.new_eos())
+                # after we've finished, do cleanup on the filesink_bin
+                return Gst.PadProbeReturn.OK
+            probe = pad.add_probe(Gst.PadProbeType.BLOCK,on_blocked,)
+        def on_blocked( *args, **named ):
+            pad.remove_probe(probe)
+            pipe.pipeline.add( filesink_bin )
+            pad.link( queue )
+            pipe.pipeline.set_state(Gst.State.PLAYING )
+            GObject.timeout_add( 5000, stop_capture )
+            return Gst.PadProbeReturn.OK
+        probe = pad.add_probe(Gst.PadProbeType.BLOCK,on_blocked,)
     def rotate_pattern(*args,**named):
         videotest = pipe.components.videotest
         if not videotest:
@@ -112,6 +146,7 @@ def main():
         pattern = (pattern + 1)%24
         videotest.set_property( 'pattern', pattern )
         GObject.timeout_add( 100, rotate_pattern )
+    GObject.timeout_add( 3000, capture_output )
     rotate_pattern()
     log.info("Muxer: %s", pipe.components.muxer)
     pipeline.LOOP.run()
