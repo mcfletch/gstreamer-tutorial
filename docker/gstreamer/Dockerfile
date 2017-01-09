@@ -8,6 +8,7 @@ RUN apt-get upgrade -y
 
 RUN apt-get install -y \
     python3.5-dev \
+    python3-setuptools \
     python3-gi \
     python3-gst-1.0 \
     gstreamer1.0-libav \
@@ -21,4 +22,4 @@ RUN apt-get install -y \
     gstreamer1.0-pulseaudio \
     gstreamer1.0-tools
 
-CMD /usr/bin/python3.5 /var/python/demo.py
+CMD /usr/bin/python3.5 /var/python/setup.py develop && gst-demo

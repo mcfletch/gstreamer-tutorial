@@ -17,5 +17,5 @@ services:
         devices:
               - /dev/video0:/dev/video0
         volumes:
-              - ./python:/var/python
+              - ./:/var/python
               - video_data:/var/www
