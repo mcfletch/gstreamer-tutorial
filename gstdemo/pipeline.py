@@ -63,5 +63,14 @@ class Pipe( object ):
             self.state = newstate
     def message_stream_start(self, bus, message ):
         log.info("Stream started")
-        for i,pad in enumerate(self.components.muxer.sinkpads):
-            log.info("Muxer pad: %s", pad.name)
+    def message_stream_status(self, bus, message ):
+        log.info( 'Stream status: %s', message.parse_stream_status() )
+        self.log_pad_structures()
+    def log_pad_structures(self):
+        if self.components.demux:
+            for i,pad in enumerate(self.components.demux.srcpads):
+                log.info("Demux pad: %s", pad.name)
+        elif self.components.muxer:
+            for i,pad in enumerate(self.components.muxer.sinkpads):
+                log.info("Muxer pad: %s", pad.name)
+        

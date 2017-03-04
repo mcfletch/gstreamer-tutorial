@@ -35,6 +35,7 @@ if __name__ == "__main__":
         entry_points = {
             'console_scripts': [
                 'gst-demo = gstdemo.demo:main',
+                'gst-demo2 = gstdemo.demo2:main',
             ],
         },
         **extraArguments
